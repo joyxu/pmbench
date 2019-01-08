@@ -1184,7 +1184,8 @@ int main(int argc, char** argv)
 #endif
 	{
 	    int permissions = PROT_READ;
-	    if (params.ratio < 100) permissions |= PROT_WRITE; 
+	    if (params.ratio < 100 || params.init_garbage)
+		permissions |= PROT_WRITE;
 
 	    buf = mmap(NULL, map_num_pfn * PAGE_SIZE, permissions, 
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
