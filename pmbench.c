@@ -799,7 +799,7 @@ void* main_bm_thread(void* arg)
     presult->total_bench_clock = sw.elapsed_sum;
     presult->total_bench_count = tenk * 10000;
 
-    prn("[%d] Benchmark done - took %0.3f sec for %d page access\n"
+    prn("[%d] Benchmark done - took %0.3f sec for %" PRIu64 " page access\n"
         "  (Average %0.3f usec per page access)\n", tinfo->thread_num,
 	(float)sw_get_usec(&sw)/1000000.0f, tenk*10000,
 	(float)sw_get_usec(&sw)/(tenk*10000));
