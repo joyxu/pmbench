@@ -35,9 +35,11 @@
 static inline
 void _sys_cpuid(unsigned* a, unsigned* b, unsigned* c, unsigned* d)
 {
+#if __x86__
     asm volatile ("cpuid\n" 
 	: "=a"(*a), "=b"(*b), "=c"(*c), "=d"(*d)
 	: "0"(*a), "2"(*c));
+#endif
 }
 
 /* CPUID 02 leaflets as of Intel SDM Version 047 (December 2015) */
