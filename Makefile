@@ -59,10 +59,13 @@ CFLAGS := -g -O2 -Wall
 CFLAGS_LINUX := 
 LFLAGS_LINUX :=
 ifeq ($(strip $(march)), 32)
-CFLAGS_LINUX += -m32
+CFLAGS_LINUX += -m32 -D__x86__=1
 LFLAGS_LINUX += -m32
+else ifeq ($(strip $(march)), aarch64)
+CFLAGS_LINUX += -march=armv8-a -D__aarch64__=1
+LFLAGS_LINUX += -march=armv8-a
 else
-CFLAGS_LINUX += -m64
+CFLAGS_LINUX += -m64 -D__x86__=1
 LFLAGS_LINUX += -m64
 endif
 
@@ -97,6 +100,12 @@ LFLAGS_WIN += $(LIBPATH_WINARGP)/argp.dll
 CFLAGS_WIN += -DPMB_XML=1 -I/usr/include/libxml2
 CFLAGS_LINUX += -DPMB_XML=1 -I/usr/include/libxml2
 LXML := -lxml2
+
+ifeq ($(strip $(march)), aarch64)
+CFLAGS_WIN += -D__aarch64__=1
+else
+CFLAGS_WIN += -D__x86__=1
+endif
 
 .PHONY: all clean dist dist_src dist_bin dist_bin32 dist_bin64 dist_doc check help
 
