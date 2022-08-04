@@ -83,6 +83,20 @@ uint64_t rdtscp(void)
 
     return rax | (rdx << 32);
 }
+#elif defined(__aarch64__)
+static inline
+uint64_t rdtsc(void)
+{
+    uint64_t counter = 0;
+    asm volatile("mrs %0, CNTVCT_EL0" : "=r" (counter));
+    return counter;
+}
+
+static inline
+uint64_t rdtscp(void)
+{
+    return rdtsc();
+}
 #endif
 
 #endif
