@@ -469,6 +469,19 @@ uint32_t get_tsc_freq_from_cpuid(void)
     return 0;
 }
 
+#if __aarch64__
+/*
+ * Return AArch64's counter frequency.
+ */
+static
+uint64_t get_aarch64_counter_freq(void)
+{
+    uint64_t counter_freq_reported;
+    asm volatile("mrs %0, CNTFRQ_EL0" : "=r" (counter_freq_reported));
+    return counter_freq_reported;
+}
+#endif
+
 /*
  * returns rdtsc frequency in KHz using MSR_PLATFORM_INFO[15:8] value
  * returns 0 if unavailable
@@ -722,10 +735,11 @@ int validate_freq(uint32_t freq_khz)
  */
 uint32_t get_cycle_freq(void)
 {
-    uint32_t freq_khz;
+#if __x86__
     /* 
      * SDM recommends using CPUID tsc freq method over MSR_PLATFORM_INFO
      */
+    uint32_t freq_khz;
     freq_khz = get_tsc_freq_from_cpuid();
     if (freq_khz) {
 	if (validate_freq(freq_khz)) return freq_khz;
@@ -738,8 +752,12 @@ uint32_t get_cycle_freq(void)
     if (freq_khz) {
 	if (validate_freq(freq_khz)) return freq_khz;
     }
-
+#elif __aarch64__
+    /* Get AArch64's frequency and convert it to KHz */
+    return get_aarch64_counter_freq() / 1000;
+#else
     return get_cycle_freq_fallback();
+#endif
 }
 
 static
