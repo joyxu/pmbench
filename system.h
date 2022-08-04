@@ -107,7 +107,13 @@ static inline int ilog2(uint32_t x) {
 }
 
 static inline void __pause(void) {
+#if __x86__
     asm volatile ( "pause\n" );
+#elif __aarch64__
+    asm volatile ( "wfi\n" );
+#else
+    #error "__pause function needs to be implemented for this architecure"
+#endif
 }
 
 /*
