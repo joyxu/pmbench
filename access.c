@@ -108,18 +108,23 @@ extern const struct sys_timestamp* get_tsops(void);
 
 static
 _code 
-uint32_t measure_read(uint32_t *ptr)
+uint32_t measure_read(volatile uint32_t *ptr)
 {
     register uint32_t _val_sink;
     struct stopwatch sw;
     sw_reset(&sw, get_tsops());
     sw_start(&sw);
+
+#if __x86__
     //asm following implements: _val_sink = *ptr;
     asm volatile (
 	 "movl %1, %0\n\t"
 	  : "=r" (_val_sink)
 	  : "m" (*ptr)
 	  : "memory");
+#else
+    _val_sink = *ptr;
+#endif
 
     sw_stop(&sw);
     return sw_get_nsec(&sw); //_val_sink;
@@ -127,7 +132,7 @@ uint32_t measure_read(uint32_t *ptr)
 
 static
 _code 
-uint32_t measure_write(uint32_t *ptr)
+uint32_t measure_write(volatile uint32_t *ptr)
 {
     uint32_t val_to_write;
     struct stopwatch sw;
@@ -136,12 +141,17 @@ uint32_t measure_write(uint32_t *ptr)
 
     sw_reset(&sw, get_tsops());
     sw_start(&sw);
+
+#if __x86__
     // asm following implements: *ptr = val_to_write;
     asm volatile (
 	 "movl %1, %0 \n\t"
 	  : "=m" (*ptr)
 	  : "r" (val_to_write)
 	  : "memory");
+#else
+    *ptr = val_to_write;
+#endif
 
     sw_stop(&sw);
     return sw_get_nsec(&sw);
@@ -152,12 +162,14 @@ uint32_t measure_write(uint32_t *ptr)
  */
 static
 _code 
-uint32_t measure_write_after_read(uint32_t *ptr)
+uint32_t measure_write_after_read(volatile uint32_t *ptr)
 {
     register uint32_t val = 0;
     struct stopwatch sw;
     sw_reset(&sw, get_tsops());
     sw_start(&sw);
+
+#if __x86__
     // asm following implements: *ptr = (*ptr);
     asm volatile (
 	 "movl (%1), %0\n\t"
@@ -166,6 +178,9 @@ uint32_t measure_write_after_read(uint32_t *ptr)
 	  : "1"(ptr)
 	  : "memory"
 	  );
+#else
+    *ptr = (*ptr);
+#endif
 
     sw_stop(&sw);
 
