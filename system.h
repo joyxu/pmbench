@@ -81,7 +81,7 @@
 /* find last (MSB) set bit. e.g., flsl(0) = 0, flsl(1) = 1, 
  * flsl(2) = 2, flsl(3) = 2, flsl(4) = 3, flsl(5) = 3,
  * flsl(15) = 4, flsl(16) = 5, flsl(17) = 5 ... */
-#if defined(_WIN32) && defined(__MSVC__)
+#if (defined(_WIN32) && defined(__MSVC__)) || defined(__aarch64__)
 static inline int __my_flsl(uint32_t x)
 {
     uint32_t r = 0;
